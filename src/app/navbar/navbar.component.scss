@@ -1,0 +1,40 @@
+.navbar {
+    padding: 1rem 0;
+  
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+  
+      i {
+        font-size: 1.8rem;
+      }
+    }
+  
+    .nav-link {
+      font-size: 1.1rem;
+      margin-left: 1.5rem;
+      position: relative;
+      transition: color 0.3s ease;
+  
+      &:hover {
+        color: #00bcd4 !important; // Highlight color on hover
+      }
+  
+      &.active {
+        color: #00bcd4 !important; // Active link color
+        font-weight: bold;
+  
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -5px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background-color: #00bcd4; // Underline for active link
+        }
+      }
+    }
+  }

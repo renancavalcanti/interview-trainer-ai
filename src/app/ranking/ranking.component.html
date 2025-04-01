@@ -1,0 +1,9 @@
+<div class="ranking-container">
+    <h3 class="ranking-title">Ranking de Usuários</h3>
+    <div class="ranking-list">
+      <div *ngFor="let user of rankingData" class="ranking-item">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-score">{{ user.score }} pontos</span>
+      </div>
+    </div>
+  </div>
