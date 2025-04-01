@@ -1,36 +1,59 @@
 <div class="chat-container">
     <div class="row">
-      <!-- Coluna do Chat de Entrevista -->
+      <!-- Interview Chat Column -->
       <div class="col-md-8">
         <div class="chat-wrapper">
           <div class="chat-header">
             <h3>Interview Simulation</h3>
-            <select [(ngModel)]="selectedLevel" (change)="startInterview()">
-              <option value="junior">Junior</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="senior">Senior</option>
-            </select>
+            <div class="controls">
+              <div class="select-group">
+                <label for="technology">Technology:</label>
+                <select id="technology" [(ngModel)]="selectedTechnology">
+                  <option *ngFor="let tech of technologies" [value]="tech.id">{{ tech.name }}</option>
+                </select>
+              </div>
+              <div class="select-group">
+                <label for="level">Level:</label>
+                <select id="level" [(ngModel)]="selectedLevel">
+                  <option *ngFor="let level of levels" [value]="level.id">{{ level.name }}</option>
+                </select>
+              </div>
+              <button (click)="startInterview()" [disabled]="isLoading">Start Interview</button>
+              <button class="secondary-button" (click)="resetConversation()" [disabled]="isLoading || !conversationId">New Conversation</button>
+            </div>
           </div>
           <div class="chat-messages">
-            <div *ngFor="let message of messages" [class]="message.sender">
-              <strong>{{ message.sender === 'ai' ? 'AI' : 'You' }}:</strong>
-              {{ message.text }}
+            <div *ngFor="let message of messages" [ngClass]="message.sender">
+              <strong>{{ message.sender === 'ai' ? 'AI' : message.sender === 'user' ? 'You' : 'System' }}:</strong>
+              <span *ngIf="message.formattedText" [innerHTML]="message.formattedText"></span>
+            </div>
+            <div *ngIf="isLoading" class="loading-indicator">
+              <span>Loading...</span>
             </div>
           </div>
           <div class="chat-input">
-            <input
-              [(ngModel)]="userInput"
-              placeholder="Type your answer..."
-              (keyup.enter)="sendMessage()"
-            />
-            <button (click)="sendMessage()">Send</button>
+            <div class="input-wrapper">
+              <textarea
+                [(ngModel)]="userInput"
+                placeholder="Type your answer here..."
+                (keydown)="handleKeyDown($event)"
+                [disabled]="isLoading || !conversationId"
+                class="text-input"
+              ></textarea>
+              <div class="keyboard-hint">Press Ctrl+Enter to send</div>
+            </div>
+            <button (click)="sendMessage()" [disabled]="isLoading || !conversationId || !userInput.trim()">Send</button>
           </div>
         </div>
       </div>
   
-      <!-- Coluna do Ranking -->
+      <!-- Code Editor Column -->
       <div class="col-md-4">
-        <app-ranking></app-ranking>
+        <app-code-editor 
+          [disabled]="isLoading || !conversationId"
+          (codeChange)="updateCodeInput($event)"
+          (sendCode)="sendMessage(true)"
+        ></app-code-editor>
       </div>
     </div>
   </div>

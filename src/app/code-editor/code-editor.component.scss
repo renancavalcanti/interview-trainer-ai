@@ -1,0 +1,141 @@
+.code-editor-container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  .editor-header {
+    background-color: #4f5d75;
+    color: white;
+    margin: 0;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      label {
+        font-size: 0.9rem;
+      }
+      
+      select {
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: white;
+        color: #333;
+        
+        &:disabled {
+          background-color: #e0e0e0;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+  
+  .code-editor-wrapper {
+    flex: 1;
+    min-height: 400px;
+    background-color: #1e1e1e;
+    
+    .code-editor {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      resize: none;
+      padding: 10px;
+      border: none;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      tab-size: 2;
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+      
+      &:focus {
+        outline: none;
+      }
+      
+      &:disabled {
+        background-color: #2d2d2d;
+        cursor: not-allowed;
+        opacity: 0.8;
+      }
+      
+      &::placeholder {
+        color: #888;
+      }
+      
+      // Language-specific syntax highlighting classes
+      &.javascript, &.typescript {
+        color: #9cdcfe;
+        
+        &::selection {
+          background-color: #264f78;
+        }
+      }
+      
+      &.python {
+        color: #ce9178;
+        
+        &::selection {
+          background-color: #264f78;
+        }
+      }
+      
+      &.java, &.csharp, &.cpp {
+        color: #4ec9b0;
+        
+        &::selection {
+          background-color: #264f78;
+        }
+      }
+    }
+  }
+  
+  .editor-actions {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    
+    .send-button {
+      padding: 10px 20px;
+      background-color: #2d3142;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      
+      &:hover:not(:disabled) {
+        background-color: #1a1e2b;
+      }
+      
+      &:disabled {
+        background-color: #9099a2;
+        cursor: not-allowed;
+      }
+    }
+    
+    .keyboard-hint {
+      font-size: 0.85rem;
+      color: #666;
+      font-style: italic;
+    }
+  }
+} 

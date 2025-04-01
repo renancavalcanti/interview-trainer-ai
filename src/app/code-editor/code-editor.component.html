@@ -1,0 +1,28 @@
+<div class="code-editor-container">
+  <div class="editor-header">
+    <h3>Code Editor</h3>
+    <div class="language-selector">
+      <label for="language">Language:</label>
+      <select id="language" [disabled]="disabled" (change)="changeLanguage($event)">
+        <option *ngFor="let lang of languageOptions" [value]="lang.id">{{ lang.name }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="code-editor-wrapper">
+    <textarea 
+      class="code-editor"
+      [ngClass]="selectedLanguage"
+      placeholder="Write your code here..."
+      (input)="onCodeChange($event)"
+      (keydown)="handleTabKey($event)"
+      [disabled]="disabled"
+      [(ngModel)]="code"
+    ></textarea>
+  </div>
+  <div class="editor-actions">
+    <button class="send-button" (click)="onSendCode()" [disabled]="disabled || !code.trim()">
+      Send Code
+    </button>
+    <div class="keyboard-hint">Press Ctrl+Enter to send</div>
+  </div>
+</div> 
