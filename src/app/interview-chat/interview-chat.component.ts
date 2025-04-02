@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
-import { InterviewService } from '../services/interview.service';
+import { InterviewService, InterviewRequest, InterviewResponse } from '../services/interview.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-interview-chat',
@@ -55,14 +57,25 @@ export class InterviewChatComponent implements OnInit {
 
   constructor(
     private interviewService: InterviewService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Initialize component
+    // Check if user is logged in
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login']);
+    }
   }
 
   startInterview(): void {
+    // Check if user is logged in before starting
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.messages = [];
     this.conversationId = null;
     this.isLoading = true;
@@ -117,6 +130,12 @@ export class InterviewChatComponent implements OnInit {
   }
 
   sendMessage(useCodeInput: boolean = false): void {
+    // Check if user is logged in before sending
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    
     const messageContent = useCodeInput ? this.codeInput.trim() : this.userInput.trim();
     
     if (messageContent && !this.isLoading) {

@@ -24,10 +24,14 @@ export class InterviewService {
   constructor(private http: HttpClient) {}
 
   startConversation(request: InterviewRequest): Observable<InterviewResponse> {
-    return this.http.post<InterviewResponse>(this.apiUrl, request);
+    return this.http.post<InterviewResponse>(this.apiUrl, request, {
+      withCredentials: true
+    });
   }
 
   continueConversation(request: InterviewRequest): Observable<InterviewResponse> {
-    return this.http.post<InterviewResponse>(this.apiUrl, request);
+    return this.http.post<InterviewResponse>(this.apiUrl, request, {
+      withCredentials: true
+    });
   }
 } 

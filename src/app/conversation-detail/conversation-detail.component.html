@@ -1,0 +1,151 @@
+<div class="conversation-detail-container">
+  <div class="container py-4">
+    <!-- Loading spinner -->
+    <div *ngIf="loading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading conversation...</p>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+    </div>
+    
+    <!-- Conversation details -->
+    <div *ngIf="!loading && conversation" class="conversation-content">
+      <!-- Back and controls -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <a routerLink="/history" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-2"></i> Back to History
+        </a>
+        <div class="study-controls">
+          <button class="btn" [ngClass]="studyMode ? 'btn-success' : 'btn-outline-success'" (click)="toggleStudyMode()">
+            <i class="fas" [ngClass]="studyMode ? 'fa-book-open' : 'fa-book'"></i>
+            {{ studyMode ? 'Exit Study Mode' : 'Enter Study Mode' }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- Conversation header -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="mb-3">{{ conversation.title || 'Interview Session' }}</h2>
+          <div class="conversation-meta mb-3">
+            <div class="badge-container mb-2">
+              <span class="badge bg-primary me-2">{{ conversation.technology }}</span>
+              <span class="badge bg-secondary me-2">{{ conversation.level }}</span>
+              <span class="badge bg-info">{{ conversation.language }}</span>
+            </div>
+            <p class="text-muted">
+              <i class="far fa-calendar-alt me-1"></i> {{ formatDate(conversation.created_at) }}
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Conversation messages -->
+      <div class="messages-container">
+        <div 
+          *ngFor="let message of conversation.messages; let i = index" 
+          class="message-card mb-3" 
+          [ngClass]="{
+            'user-message': message.role === 'user',
+            'assistant-message': message.role === 'assistant',
+            'highlighted': isHighlighted(i)
+          }"
+        >
+          <div class="message-header d-flex justify-content-between align-items-center mb-2">
+            <div class="message-avatar">
+              <i class="fas" [ngClass]="message.role === 'user' ? 'fa-user' : 'fa-robot'"></i>
+              <span class="ms-2">{{ message.role === 'user' ? 'You' : 'AI Assistant' }}</span>
+            </div>
+            
+            <div class="message-actions" *ngIf="studyMode">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="toggleHighlight(i)">
+                <i [ngClass]="isHighlighted(i) ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+                {{ isHighlighted(i) ? 'Unhighlight' : 'Highlight' }}
+              </button>
+              <button class="btn btn-sm btn-outline-info me-1" (click)="addNote(i)">
+                <i class="fas fa-sticky-note"></i> {{ hasNote(i) ? 'Edit Note' : 'Add Note' }}
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="copyToClipboard(message.content)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+          
+          <div class="message-content">
+            <div class="message-text" [innerHTML]="formatContent(message.content)"></div>
+            
+            <!-- Note display -->
+            <div *ngIf="hasNote(i) && showNoteEditor !== i" class="note-display mt-3">
+              <div class="note-header">
+                <i class="fas fa-sticky-note text-warning me-2"></i> Your Note:
+              </div>
+              <div class="note-body">
+                {{ getNote(i) }}
+              </div>
+            </div>
+            
+            <!-- Note editor -->
+            <div *ngIf="showNoteEditor === i" class="note-editor mt-3">
+              <div class="form-group">
+                <label for="noteText" class="form-label">
+                  <i class="fas fa-sticky-note text-warning me-2"></i> Your Study Note:
+                </label>
+                <textarea
+                  id="noteText"
+                  class="form-control"
+                  rows="3"
+                  [(ngModel)]="currentNote"
+                  placeholder="Write notes about this part of the conversation..."
+                ></textarea>
+              </div>
+              <div class="d-flex mt-2">
+                <button class="btn btn-primary me-2" (click)="saveNote()">Save Note</button>
+                <button class="btn btn-outline-secondary" (click)="cancelNote()">Cancel</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="message-footer text-muted">
+            <small>{{ formatDate(message.timestamp) }}</small>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Study summary section (only visible in study mode) -->
+      <div *ngIf="studyMode && highlightedMessages.size > 0 && conversation" class="study-summary card mt-4">
+        <div class="card-header bg-light">
+          <h4 class="mb-0">
+            <i class="fas fa-graduation-cap me-2"></i> Study Summary
+          </h4>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-3">Highlighted Points</h5>
+          <div class="list-group">
+            <div 
+              *ngFor="let item of highlightedMessagesMap | keyvalue" 
+              class="list-group-item"
+            >
+              <ng-container *ngIf="conversation.messages[+item.key]">
+                <div class="d-flex w-100 justify-content-between mb-2">
+                  <h6 class="mb-1">{{ getMessageRole(+item.key) }}</h6>
+                  <small class="text-muted">{{ getMessageTimestamp(+item.key) }}</small>
+                </div>
+                <p class="mb-1" [innerHTML]="formatContent(getMessageContent(+item.key))"></p>
+                <div *ngIf="hasNote(+item.key)" class="mt-2 study-note">
+                  <small class="text-muted">
+                    <i class="fas fa-sticky-note text-warning me-1"></i> Note: {{ getNote(+item.key) }}
+                  </small>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
