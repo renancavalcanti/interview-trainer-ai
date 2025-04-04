@@ -1,10 +1,12 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ConversationService, ConversationDetail, Message } from '../services/conversation.service';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KeyValue } from '@angular/common';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -27,6 +29,9 @@ export class ConversationDetailComponent implements OnInit {
   currentNote = '';
   studyMode = false;
   private isBrowser: boolean;
+  @ViewChild('studySummary') studySummaryElement: ElementRef | null = null;
+  generatingPdf = false;
+  toast: { show: boolean; message: string; type: string } = { show: false, message: '', type: 'success' };
 
   constructor(
     private route: ActivatedRoute,
@@ -202,5 +207,84 @@ export class ConversationDetailComponent implements OnInit {
 
   getNote(index: number): string {
     return this.notes[index] || '';
+  }
+
+  /**
+   * Display a toast message 
+   */
+  private showToast(message: string, type: string = 'success'): void {
+    if (!this.isBrowser) return;
+    
+    this.toast = { show: true, message, type };
+    
+    // Hide the toast after 3 seconds
+    setTimeout(() => {
+      this.toast = { ...this.toast, show: false };
+    }, 3000);
+  }
+
+  /**
+   * Generate and download a PDF of the study summary
+   */
+  generatePdf(): void {
+    if (!this.isBrowser || !this.studySummaryElement || !this.conversation) {
+      console.error('Cannot generate PDF: missing required elements');
+      return;
+    }
+
+    this.generatingPdf = true;
+    const element = this.studySummaryElement.nativeElement;
+    const conversationTitle = this.conversation.title || 'Conversation Summary';
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `${conversationTitle.replace(/\s+/g, '_')}_${timestamp}.pdf`;
+
+    // Show loading indicator or message
+    const originalDisplay = element.style.display;
+    // Ensure the element is visible for html2canvas
+    element.style.display = 'block';
+
+    html2canvas(element, {
+      scale: 2, // Higher scale for better quality
+      useCORS: true,
+      logging: false,
+      allowTaint: true
+    }).then((canvas) => {
+      // Restore original display style
+      element.style.display = originalDisplay;
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 30; // Start 30mm from the top
+
+      // Add a title
+      pdf.setFontSize(16);
+      pdf.text(conversationTitle, pdfWidth / 2, 15, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(`Generated on ${new Date().toLocaleString()}`, pdfWidth / 2, 22, { align: 'center' });
+      
+      // Add the image
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      
+      // Download the PDF
+      pdf.save(filename);
+      this.generatingPdf = false;
+      this.showToast('PDF has been generated and downloaded successfully!');
+    }).catch((error) => {
+      console.error('Error generating PDF:', error);
+      element.style.display = originalDisplay;
+      this.generatingPdf = false;
+      this.showToast('Failed to generate PDF. Please try again.', 'danger');
+    });
   }
 } 
