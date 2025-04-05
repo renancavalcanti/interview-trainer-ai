@@ -2,7 +2,7 @@
     <div class="container-fluid">
       <!-- Brand/Logo -->
       <a class="navbar-brand" routerLink="/">
-        <i class="fas fa-brain me-2"></i> <!-- Font Awesome icon (optional) -->
+        <img src="assets/images/navimage.png" alt="InterviewIQ Logo" class="navbar-logo me-2">
         InterviewIQ
       </a>
   
@@ -48,6 +48,15 @@
               routerLinkActive="active"
             >
               History
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="authService.isLoggedIn">
+            <a
+              class="nav-link"
+              routerLink="/quizzes"
+              routerLinkActive="active"
+            >
+              Quizzes
             </a>
           </li>
           <li class="nav-item" *ngIf="!authService.isLoggedIn">

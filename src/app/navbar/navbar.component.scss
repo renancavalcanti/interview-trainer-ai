@@ -12,6 +12,14 @@
       i {
         color: #3498db;
       }
+      
+      .navbar-logo {
+        height: 50px;
+        width: 50px;
+        object-fit: contain;
+        background-color: transparent;
+        border-radius: 20px;
+      }
     }
   
     .nav-link {
@@ -41,6 +49,8 @@
   font-weight: 500;
   color: #3498db !important;
   cursor: default;
+  display: flex;
+  align-items: center;
   
   i {
     opacity: 0.8;

@@ -1,14 +1,22 @@
 .chat-container {
     padding: 20px;
+    height: calc(100vh - var(--navbar-height)); /* Use CSS variable for navbar height */
+    display: flex;
+    flex-direction: column;
     
     .row {
       display: flex;
       flex-wrap: wrap;
       margin: -10px;
+      flex: 1; /* Take up all available space */
+      min-height: 0; /* Allow the row to shrink as needed */
       
       .col-md-8, .col-md-4 {
         padding: 10px;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; /* Allow column to shrink within flex container */
       }
       
       .col-md-8 {
@@ -48,6 +56,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    flex-shrink: 0; /* Don't allow header to shrink */
 
     h3 {
       margin: 0;
@@ -109,12 +118,17 @@
     }
   }
   
+  /* Make the interview limits component non-shrinkable */
+  app-interview-limits {
+    flex-shrink: 0;
+  }
+  
   .chat-messages {
     padding: 15px;
-    height: 500px;
     overflow-y: auto;
     background-color: #f5f5f5;
-    flex: 1;
+    flex: 1; /* Take all available space */
+    min-height: 200px; /* Set minimum height */
 
     .user, .ai, .system {
       margin-bottom: 15px;
@@ -209,6 +223,7 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     border-top: 1px solid #eee;
+    flex-shrink: 0; /* Prevent shrinking */
 
     .input-wrapper {
       flex: 1;
@@ -232,8 +247,8 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       min-height: 120px;
-      max-height: 300px;
-      resize: vertical;
+      max-height: 120px; /* Fix height to ensure consistency */
+      resize: none; /* Prevent resizing which could break the layout */
       font-family: inherit;
       font-size: 14px;
       line-height: 1.5;
@@ -250,24 +265,52 @@
         box-shadow: 0 0 0 2px rgba(79, 93, 117, 0.2);
       }
     }
-
+    
     button {
-      align-self: flex-start;
       padding: 10px 20px;
-      background-color: #2d3142;
+      background-color: #4f5d75;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s;
-
+      align-self: flex-end;
+      height: 42px; /* Fixed height to vertically align with text area */
+      
       &:hover:not(:disabled) {
-        background-color: #1a1e2b;
+        background-color: #3d4a5f;
       }
-
+      
       &:disabled {
         background-color: #9099a2;
         cursor: not-allowed;
       }
+    }
+  }
+  
+  /* Make the code editor component take full height and handle its own scrolling */
+  app-code-editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  /* Add some media queries for better responsiveness */
+  @media (max-width: 768px) {
+    .chat-container {
+      height: auto;
+      min-height: calc(100vh - var(--navbar-height));
+    }
+    
+    .row {
+      flex-direction: column;
+    }
+    
+    .chat-wrapper, app-code-editor {
+      height: auto;
+      margin-bottom: 20px;
+    }
+    
+    .chat-messages {
+      max-height: 400px;
     }
   }

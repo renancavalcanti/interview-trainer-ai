@@ -22,6 +22,10 @@
               <button class="secondary-button" (click)="resetConversation()" [disabled]="isLoading || !conversationId">New Conversation</button>
             </div>
           </div>
+
+          <!-- Interview Limits Display -->
+          <app-interview-limits></app-interview-limits>
+
           <div class="chat-messages">
             <div *ngFor="let message of messages" [ngClass]="message.sender">
               <strong>{{ message.sender === 'ai' ? 'AI' : message.sender === 'user' ? 'You' : 'System' }}:</strong>

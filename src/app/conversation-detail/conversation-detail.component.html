@@ -42,6 +42,24 @@
               <i class="far fa-calendar-alt me-1"></i> {{ formatDate(conversation.created_at) }}
             </p>
           </div>
+          
+          <!-- Add quiz generation button -->
+          <div class="quiz-actions mt-3">
+            <button 
+              class="btn btn-primary" 
+              (click)="generateQuiz()" 
+              [disabled]="generatingQuiz">
+              <i class="fas fa-question-circle me-1"></i>
+              <span *ngIf="!generatingQuiz">Generate Quiz</span>
+              <span *ngIf="generatingQuiz">
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Generating Quiz...
+              </span>
+            </button>
+            <small class="text-muted d-block mt-1">
+              Create a quiz based on this interview to test your knowledge
+            </small>
+          </div>
         </div>
       </div>
       

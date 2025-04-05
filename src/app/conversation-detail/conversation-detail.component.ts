@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { KeyValue } from '@angular/common';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { InterviewService } from '../services/interview.service';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -33,10 +34,14 @@ export class ConversationDetailComponent implements OnInit {
   generatingPdf = false;
   toast: { show: boolean; message: string; type: string } = { show: false, message: '', type: 'success' };
 
+  // Add quiz-related properties
+  generatingQuiz = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private conversationService: ConversationService,
+    private interviewService: InterviewService, // Add interview service
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -285,6 +290,32 @@ export class ConversationDetailComponent implements OnInit {
       element.style.display = originalDisplay;
       this.generatingPdf = false;
       this.showToast('Failed to generate PDF. Please try again.', 'danger');
+    });
+  }
+
+  // Add quiz generation method
+  generateQuiz(): void {
+    if (!this.conversation || !this.conversationId) return;
+    
+    this.generatingQuiz = true;
+    this.showToast('Generating quiz...', 'info');
+
+    this.interviewService.generateQuiz(this.conversationId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.showToast('Quiz generated successfully!', 'success');
+          // Navigate to the quiz page
+          this.router.navigate(['/quiz', response.quiz_id]);
+        } else {
+          this.showToast('Failed to generate quiz. Please try again.', 'danger');
+        }
+        this.generatingQuiz = false;
+      },
+      error: (error) => {
+        console.error('Error generating quiz:', error);
+        this.showToast('An error occurred while generating the quiz.', 'danger');
+        this.generatingQuiz = false;
+      }
     });
   }
 } 

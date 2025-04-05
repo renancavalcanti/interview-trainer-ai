@@ -6,11 +6,12 @@ import { InterviewService, InterviewRequest, InterviewResponse } from '../servic
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { InterviewLimitsComponent } from '../interview-limits/interview-limits.component';
 
 @Component({
   selector: 'app-interview-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, CodeEditorComponent],
+  imports: [CommonModule, FormsModule, CodeEditorComponent, InterviewLimitsComponent],
   templateUrl: './interview-chat.component.html',
   styleUrl: './interview-chat.component.scss'
 })
@@ -104,7 +105,14 @@ export class InterviewChatComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error starting interview:', error);
-        const errorMsg = 'Error connecting to the interview service. Please try again later.';
+        
+        // Check for interview limit error (status 429)
+        let errorMsg = 'Error connecting to the interview service. Please try again later.';
+        
+        if (error.status === 429) {
+          errorMsg = `You've reached your daily interview limit. Please try again tomorrow.`;
+        }
+        
         this.messages.push({
           sender: 'system',
           text: errorMsg,
