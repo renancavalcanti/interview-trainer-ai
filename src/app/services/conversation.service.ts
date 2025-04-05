@@ -30,7 +30,7 @@ export interface Message {
   providedIn: 'root'
 })
 export class ConversationService {
-  private baseUrl = 'http://127.0.0.1:5000';
+  private baseUrl = 'https://seahorse-app-dr62o.ondigitalocean.app';
 
   constructor(private http: HttpClient) {}
 
