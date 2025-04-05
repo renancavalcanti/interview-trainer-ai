@@ -1,0 +1,9 @@
+{
+  "routes": [
+    "/history",
+    "/interview",
+    "/login",
+    "/quizzes",
+    "/register"
+  ]
+}
